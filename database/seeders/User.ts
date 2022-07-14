@@ -26,6 +26,7 @@ export default class extends BaseSeeder {
       password: 'player123',
     })
     const rolePlayer = await Role.findBy('name', 'player')
+    console.log(rolePlayer?.id, roleAdmin?.id)
     if (rolePlayer) await userPlayer.related('roles').attach([rolePlayer.id])
   }
 }

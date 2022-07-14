@@ -17,12 +17,18 @@ Route.group(() => {
   }).middleware(['auth', 'is:admin'])
   Route.get('test_access_level_player', async ({ response }: HttpContextContract) => {
     response.ok({ statusCode: 200, message: 'Access Level Player' })
-  }).middleware(['auth', 'is:player'])
+  }).middleware(['auth', 'is:player,admin'])
 }).prefix('api/v1')
 
-Route.post('login', 'AuthController.login')
+// Public routes
+Route.group(() => {
+  Route.post('login', 'AuthController.login')
+  Route.post('users', 'UsersController.store')
+}).prefix('api/v1')
 
 // Authenticated routes group
-Route.group(() => {})
+Route.group(() => {
+  Route.resource('users', 'UsersController').except(['store'])
+})
   .prefix('api/v1')
   .middleware('auth')
