@@ -7,15 +7,25 @@ export default class extends BaseSeeder {
   public static developmentOnly = true
   public async run() {
     const emailAdminQueryField = { email: 'admin@admin.com' }
-
     const userAdmin = await User.updateOrCreate(emailAdminQueryField, {
       id: v4(),
       name: 'Admin',
-      cpf: '054.621.881-45',
+      cpf: '000.000.000-00',
       email: 'admin@admin.com',
       password: 'admin123',
     })
     const roleAdmin = await Role.findBy('name', 'admin')
     if (roleAdmin) await userAdmin.related('roles').attach([roleAdmin.id])
+
+    const emailPlayerQueryField = { email: 'player@player.com' }
+    const userPlayer = await User.updateOrCreate(emailPlayerQueryField, {
+      id: v4(),
+      name: 'Player',
+      cpf: '000.000.000-01',
+      email: 'player@player.com',
+      password: 'player123',
+    })
+    const rolePlayer = await Role.findBy('name', 'player')
+    if (rolePlayer) await userPlayer.related('roles').attach([rolePlayer.id])
   }
 }

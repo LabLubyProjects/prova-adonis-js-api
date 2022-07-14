@@ -18,6 +18,9 @@ export default class User extends BaseModel {
   @column({ isPrimary: true })
   public id: string
 
+  @column({ serializeAs: null })
+  public rememberMeToken?: string
+
   @column()
   public name: string
 
@@ -27,7 +30,7 @@ export default class User extends BaseModel {
   @column()
   public email: string
 
-  @column()
+  @column({ serializeAs: null })
   public password: string
 
   @column.dateTime({ autoCreate: true })

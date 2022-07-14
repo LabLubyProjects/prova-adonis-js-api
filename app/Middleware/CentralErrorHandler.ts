@@ -1,3 +1,4 @@
+import { AuthenticationException } from '@adonisjs/auth/build/standalone'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 export default class CentralErrorHandler {
@@ -5,7 +6,9 @@ export default class CentralErrorHandler {
     try {
       await next()
     } catch (error) {
-      response.internalServerError({ statusCode: 500, message: error.message })
+      if (error instanceof AuthenticationException)
+        return response.unauthorized({ statusCode: 401, message: 'Invalid credentials' })
+      return response.internalServerError({ statusCode: 500, message: error.message })
     }
   }
 }

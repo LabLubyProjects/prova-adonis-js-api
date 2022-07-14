@@ -5,4 +5,7 @@ Server.middleware.register([
   () => import('App/Middleware/CentralErrorHandler'),
 ])
 
-Server.middleware.registerNamed({})
+Server.middleware.registerNamed({
+  auth: () => import('App/Middleware/Auth'),
+  is: () => import('App/Middleware/Is'),
+})
