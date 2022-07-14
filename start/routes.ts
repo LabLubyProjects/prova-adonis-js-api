@@ -7,7 +7,6 @@ Route.where('id', Route.matchers.uuid())
 Route.get('test_db_connection', async ({ response }: HttpContextContract) => {
   await Database.report().then((health) => {
     const { healthy, message } = health.health
-
     return healthy ? response.ok({ message }) : response.internalServerError({ message })
   })
 })
