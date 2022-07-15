@@ -46,7 +46,7 @@ export default class UsersController {
         .preload('roles', (role) => role.select('name', 'description'))
         .first()
     } catch (error) {
-      transaction.rollback()
+      await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error creating user' })
     }
 
@@ -90,7 +90,7 @@ export default class UsersController {
         .preload('roles', (role) => role.select('name', 'description'))
         .first()
     } catch (error) {
-      transaction.rollback()
+      await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error updating user' })
     }
 
@@ -102,11 +102,12 @@ export default class UsersController {
   public async destroy({ response, params }: HttpContextContract) {
     const userId = params.id
 
-    try {
-      await User.query().where('id', userId).delete()
-      return response.ok({ message: 'User deleted successfully' })
-    } catch (error) {
-      return response.notFound({ statusCode: 404, message: 'User not found' })
-    }
+    const user = await User.find(userId)
+
+    if (!user) return response.notFound({ statusCode: 404, message: 'User not found' })
+
+    await user.delete()
+
+    return response.ok(user)
   }
 }

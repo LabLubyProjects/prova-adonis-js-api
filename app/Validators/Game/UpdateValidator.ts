@@ -12,33 +12,25 @@ export default class UpdateValidator extends MessagesCustom {
   })
 
   public schema = schema.create({
-    name: schema.string.optional({ trim: true }, [
+    type: schema.string.optional({ trim: true }, [
       rules.maxLength(50),
       rules.minLength(3),
-      rules.regex(/^[a-zA-ZÀ-ÿ\u00f1\u00d1]*$/g),
-    ]),
-    cpf: schema.string.optional({}, [
-      rules.regex(/^\d{3}.\d{3}.\d{3}-\d{2}$/),
+      rules.regex(/^[a-zA-ZÀ-ÿ\u00f1\u00d1-]*$/g),
       rules.unique({
-        table: 'users',
-        column: 'cpf',
+        table: 'games',
+        column: 'type',
         whereNot: {
           id: this.refs.id,
         },
       }),
     ]),
-    email: schema.string.optional({ trim: true }, [
-      rules.maxLength(50),
-      rules.minLength(3),
-      rules.email(),
-      rules.unique({
-        table: 'users',
-        column: 'email',
-        whereNot: {
-          id: this.refs.id,
-        },
-      }),
+    description: schema.string.optional({ trim: true }, [
+      rules.maxLength(255),
+      rules.minLength(10),
     ]),
-    password: schema.string.optional({}, [rules.maxLength(50)]),
+    range: schema.number.optional([rules.unsigned()]),
+    price: schema.number.optional([rules.unsigned()]),
+    minAndMaxNumber: schema.number.optional([rules.unsigned()]),
+    color: schema.string.optional({ trim: true }),
   })
 }

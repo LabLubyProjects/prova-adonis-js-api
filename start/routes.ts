@@ -29,6 +29,7 @@ Route.group(() => {
 // Authenticated routes
 Route.group(() => {
   Route.resource('users', 'UsersController').except(['store', 'index', 'destroy'])
+  Route.resource('games', 'GamesController').only(['index', 'show'])
 })
   .prefix('api/v1')
   .middleware('auth')
@@ -36,6 +37,7 @@ Route.group(() => {
 // Admin routes
 Route.group(() => {
   Route.resource('users', 'UsersController').only(['index', 'destroy'])
+  Route.resource('games', 'GamesController').except(['index', 'show'])
 })
   .prefix('api/v1')
   .middleware(['auth', 'is:admin'])
