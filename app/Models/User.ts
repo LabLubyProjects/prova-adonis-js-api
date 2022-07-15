@@ -10,11 +10,16 @@ import {
   manyToMany,
 } from '@ioc:Adonis/Lucid/Orm'
 import Hash from '@ioc:Adonis/Core/Hash'
+import { compose } from '@ioc:Adonis/Core/Helpers'
+import { Filterable } from '@ioc:Adonis/Addons/LucidFilter'
+import UserFilter from './Filters/UserFilter'
 import { v4 } from 'uuid'
 import Bet from './Bet'
 import Role from './Role'
 
-export default class User extends BaseModel {
+export default class User extends compose(BaseModel, Filterable) {
+  public static $filter = () => UserFilter
+
   @column({ isPrimary: true })
   public id: string
 

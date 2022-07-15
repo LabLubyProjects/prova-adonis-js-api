@@ -4,9 +4,29 @@ import Role from 'App/Models/Role'
 import User from 'App/Models/User'
 import StoreValidator from 'App/Validators/User/StoreValidator'
 import UpdateValidator from 'App/Validators/User/UpdateValidator'
+import { DateTime } from 'luxon'
 
 export default class UsersController {
-  public async index({}: HttpContextContract) {}
+  public async index({ response, request }: HttpContextContract) {
+    const { page, perPage, noPaginate, ...inputs } = request.qs()
+    try {
+      const userQuery = User.query()
+        .preload('roles', (role) => role.select('name', 'description'))
+        .preload('bets', (bet) =>
+          bet
+            .select('game_id', 'numbers')
+            .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toLocaleString())
+        )
+        .filter(inputs)
+      if (!noPaginate) {
+        userQuery.paginate(page || 1, perPage || 10)
+      }
+      const users = await userQuery
+      return response.ok(users)
+    } catch (error) {
+      return response.badRequest({ statusCode: 400, message: 'Error fetching users' })
+    }
+  }
 
   public async store({ request, response }: HttpContextContract) {
     await request.validate(StoreValidator)
@@ -35,7 +55,21 @@ export default class UsersController {
     return response.created(newUser)
   }
 
-  public async show({}: HttpContextContract) {}
+  public async show({ response, params }: HttpContextContract) {
+    const userId = params.id
+
+    const user = await User.query()
+      .where('id', userId)
+      .preload('roles', (role) => role.select('name', 'description'))
+      .preload('bets', (bet) =>
+        bet
+          .select('game_id', 'numbers')
+          .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toLocaleString())
+      )
+      .first()
+    if (!user) return response.notFound({ statusCode: 404, message: 'User not found' })
+    return response.ok(user)
+  }
 
   public async update({ request, response, params }: HttpContextContract) {
     await request.validate(UpdateValidator)
@@ -65,5 +99,14 @@ export default class UsersController {
     return response.created(updatedUser)
   }
 
-  public async destroy({}: HttpContextContract) {}
+  public async destroy({ response, params }: HttpContextContract) {
+    const userId = params.id
+
+    try {
+      await User.query().where('id', userId).delete()
+      return response.ok({ message: 'User deleted successfully' })
+    } catch (error) {
+      return response.notFound({ statusCode: 404, message: 'User not found' })
+    }
+  }
 }

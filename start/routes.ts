@@ -4,7 +4,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 Route.where('id', Route.matchers.uuid())
 
-// Test Routes
+// Tests
 Route.group(() => {
   Route.get('test_db_connection', async ({ response }: HttpContextContract) => {
     await Database.report().then((health) => {
@@ -26,9 +26,16 @@ Route.group(() => {
   Route.post('users', 'UsersController.store')
 }).prefix('api/v1')
 
-// Authenticated routes group
+// Authenticated routes
 Route.group(() => {
-  Route.resource('users', 'UsersController').except(['store'])
+  Route.resource('users', 'UsersController').except(['store', 'index', 'destroy'])
 })
   .prefix('api/v1')
   .middleware('auth')
+
+// Admin routes
+Route.group(() => {
+  Route.resource('users', 'UsersController').only(['index', 'destroy'])
+})
+  .prefix('api/v1')
+  .middleware(['auth', 'is:admin'])

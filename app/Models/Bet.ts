@@ -14,6 +14,9 @@ export default class Bet extends BaseModel {
   @column()
   public gameId: string
 
+  @column()
+  public numbers: string
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
