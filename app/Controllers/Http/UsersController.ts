@@ -8,7 +8,7 @@ import { DateTime } from 'luxon'
 
 export default class UsersController {
   public async index({ response, request }: HttpContextContract) {
-    const { page, perPage, noPaginate, ...inputs } = request.qs()
+    const { page, perPage, ...inputs } = request.qs()
     try {
       const userQuery = User.query()
         .preload('roles', (role) => role.select('name', 'description'))
@@ -18,9 +18,9 @@ export default class UsersController {
             .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toLocaleString())
         )
         .filter(inputs)
-      if (!noPaginate) {
-        userQuery.paginate(page || 1, perPage || 10)
-      }
+
+      if (page || perPage) await userQuery.paginate(page || 1, perPage || 10)
+
       const users = await userQuery
       return response.ok(users)
     } catch (error) {

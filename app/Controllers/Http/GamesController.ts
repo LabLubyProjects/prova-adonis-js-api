@@ -5,10 +5,10 @@ import UpdateValidator from 'App/Validators/Game/UpdateValidator'
 
 export default class GamesController {
   public async index({ request, response }: HttpContextContract) {
-    const { page, perPage, noPaginate, ...inputs } = request.qs()
+    const { page, perPage, ...inputs } = request.qs()
     try {
       const gamesQuery = Game.query().filter(inputs)
-      if (!noPaginate) gamesQuery.paginate(page || 1, perPage || 10)
+      if (page || perPage) await gamesQuery.paginate(page || 1, perPage || 10)
       const games = await gamesQuery
       return response.ok(games)
     } catch (error) {
@@ -85,6 +85,6 @@ export default class GamesController {
 
     await game.delete()
 
-    return response.ok(game)
+    return response.ok({ message: 'Game deleted successfully' })
   }
 }
