@@ -26,13 +26,14 @@ Route.group(() => {
   Route.post('users', 'UsersController.store')
 }).prefix('api/v1')
 
-// Authenticated routes
+// Player routes
 Route.group(() => {
   Route.resource('users', 'UsersController').except(['store', 'index', 'destroy'])
   Route.resource('games', 'GamesController').only(['index', 'show'])
+  Route.post('bets', 'BetsController.store')
 })
   .prefix('api/v1')
-  .middleware('auth')
+  .middleware(['auth', 'is:player'])
 
 // Admin routes
 Route.group(() => {

@@ -37,6 +37,7 @@ export default class UpdateValidator extends MessagesCustom {
         whereNot: {
           id: this.refs.id,
         },
+        caseInsensitive: true,
       }),
     ]),
     password: schema.string.optional({}, [rules.maxLength(50)]),

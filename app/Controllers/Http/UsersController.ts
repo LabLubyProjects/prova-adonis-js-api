@@ -15,7 +15,7 @@ export default class UsersController {
         .preload('bets', (bet) =>
           bet
             .select('game_id', 'numbers')
-            .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toLocaleString())
+            .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toString())
         )
         .filter(inputs)
 
@@ -24,6 +24,7 @@ export default class UsersController {
       const users = await userQuery
       return response.ok(users)
     } catch (error) {
+      console.log(error)
       return response.badRequest({ statusCode: 400, message: 'Error fetching users' })
     }
   }
@@ -64,7 +65,7 @@ export default class UsersController {
       .preload('bets', (bet) =>
         bet
           .select('game_id', 'numbers')
-          .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toLocaleString())
+          .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toString())
       )
       .first()
     if (!user) return response.notFound({ statusCode: 404, message: 'User not found' })

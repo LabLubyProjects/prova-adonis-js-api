@@ -6,7 +6,6 @@ export default class CentralErrorHandler {
     try {
       await next()
     } catch (error) {
-      console.log(error.messages)
       if (error instanceof AuthenticationException)
         return response.unauthorized({ statusCode: 401, message: 'Invalid credentials' })
       return response.internalServerError({ statusCode: 500, message: error.message })

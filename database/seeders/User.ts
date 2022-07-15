@@ -15,7 +15,9 @@ export default class extends BaseSeeder {
       password: 'admin123',
     })
     const roleAdmin = await Role.findBy('name', 'admin')
+    const rolePlayer = await Role.findBy('name', 'player')
     if (roleAdmin) await userAdmin.related('roles').attach([roleAdmin.id])
+    if (rolePlayer) await userAdmin.related('roles').attach([rolePlayer.id])
 
     const emailPlayerQueryField = { email: 'player@player.com' }
     const userPlayer = await User.updateOrCreate(emailPlayerQueryField, {
@@ -25,7 +27,6 @@ export default class extends BaseSeeder {
       email: 'player@player.com',
       password: 'player123',
     })
-    const rolePlayer = await Role.findBy('name', 'player')
     console.log(rolePlayer?.id, roleAdmin?.id)
     if (rolePlayer) await userPlayer.related('roles').attach([rolePlayer.id])
   }
