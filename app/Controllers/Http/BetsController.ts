@@ -5,6 +5,18 @@ import Cart from 'App/Models/Cart'
 import StoreValidator from 'App/Validators/Bet/StoreValidator'
 
 export default class BetsController {
+  public async index({ request, response }: HttpContextContract) {
+    const { page, perPage } = request.qs()
+    try {
+      const betsQuery = Bet.query()
+      if (page || perPage) await betsQuery.paginate(page || 1, perPage || 10)
+      const bets = await betsQuery
+      return response.ok(bets)
+    } catch (error) {
+      return response.badRequest({ statusCode: 400, message: 'Error fetching bets' })
+    }
+  }
+
   public async store({ request, response, auth }: HttpContextContract) {
     await request.validate(StoreValidator)
     const userId = auth.user?.id
@@ -54,5 +66,15 @@ export default class BetsController {
     } catch (error) {
       return response.badRequest({ statusCode: 400, message: 'Error while processing bets' })
     }
+  }
+
+  public async show({ response, params }: HttpContextContract) {
+    const betId = params.id
+
+    const bet = await Bet.find(betId)
+
+    if (!bet) return response.notFound({ statusCode: 404, message: 'Bet not found' })
+
+    return response.ok(bet)
   }
 }

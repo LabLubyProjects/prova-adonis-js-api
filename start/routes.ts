@@ -30,7 +30,7 @@ Route.group(() => {
 Route.group(() => {
   Route.resource('users', 'UsersController').except(['store', 'index', 'destroy'])
   Route.resource('games', 'GamesController').only(['index', 'show'])
-  Route.post('bets', 'BetsController.store')
+  Route.resource('bets', 'BetsController').only(['index', 'show', 'store'])
 })
   .prefix('api/v1')
   .middleware(['auth', 'is:player'])
