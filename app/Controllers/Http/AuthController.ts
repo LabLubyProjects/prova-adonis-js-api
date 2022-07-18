@@ -6,6 +6,7 @@ import ForgotPasswordValidator from 'App/Validators/User/ForgotPasswordValidator
 import * as crypto from 'crypto'
 import { DateTime } from 'luxon'
 import ResetPasswordValidator from 'App/Validators/User/ResetPasswordValidator'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class AuthController {
   public async login({ auth, request, response }: HttpContextContract) {
@@ -43,6 +44,7 @@ export default class AuthController {
       await sendEmail(user, 'email/recover', 'Password Recovery Token')
       return response.ok({ message: 'Password recovery token email sent successfully!' })
     } catch (error) {
+      console.log(error)
       return response.badRequest({ statusCode: 400, message: 'Error sending token recovery email' })
     }
   }
