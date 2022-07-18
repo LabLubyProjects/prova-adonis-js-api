@@ -3,6 +3,7 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import Role from 'App/Models/Role'
 import User from 'App/Models/User'
 import { sendEmail } from 'App/Services/sendEmail'
+import AllowAccessValidator from 'App/Validators/User/AllowAccessValidator'
 import StoreValidator from 'App/Validators/User/StoreValidator'
 import UpdateValidator from 'App/Validators/User/UpdateValidator'
 import { DateTime } from 'luxon'
@@ -127,5 +128,28 @@ export default class UsersController {
     await user.delete()
 
     return response.ok(user)
+  }
+
+  public async AllowAccess({ response, request }: HttpContextContract) {
+    await request.validate(AllowAccessValidator)
+
+    const { userId, roles } = request.all()
+
+    try {
+      const userAllow = await User.findByOrFail('id', userId)
+
+      let roleIds: string[] = []
+      await Promise.all(
+        roles.map(async (roleName) => {
+          const hasRole = await Role.findBy('name', roleName)
+          if (hasRole) roleIds.push(hasRole.id)
+        })
+      )
+
+      await userAllow.related('roles').sync(roleIds)
+      return response.ok({ message: 'User roles updated successfully' })
+    } catch (error) {
+      return response.badRequest({ statusCode: 400, message: 'Error allowing access' })
+    }
   }
 }
