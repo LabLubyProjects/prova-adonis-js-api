@@ -23,10 +23,12 @@ export default class ExceptionHandler extends HttpExceptionHandler {
   }
 
   public async handle(error: any, ctx: HttpContextContract) {
-    console.log(error)
     if (error.code === 'E_UNAUTHORIZED_ACCESS')
       return ctx.response.unauthorized({ statusCode: 401, message: 'Invalid credentials' })
+    if (error.code === 'E_ROUTE_NOT_FOUND')
+      return ctx.response.badRequest({ statusCode: 404, message: 'Route not found' })
     if (error.code === 'E_VALIDATION_FAILURE') return ctx.response.status(422).send(error.messages)
+
     return ctx.response.internalServerError({ statusCode: 500, message: 'Internal Server Error' })
   }
 }

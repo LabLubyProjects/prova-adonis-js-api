@@ -6,7 +6,6 @@ import ForgotPasswordValidator from 'App/Validators/User/ForgotPasswordValidator
 import * as crypto from 'crypto'
 import { DateTime } from 'luxon'
 import ResetPasswordValidator from 'App/Validators/User/ResetPasswordValidator'
-import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class AuthController {
   public async login({ auth, request, response }: HttpContextContract) {
