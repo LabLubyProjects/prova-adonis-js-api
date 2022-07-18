@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Role from 'App/Models/Role'
 import User from 'App/Models/User'
+import { sendEmail } from 'App/Services/sendEmail'
 import StoreValidator from 'App/Validators/User/StoreValidator'
 import UpdateValidator from 'App/Validators/User/UpdateValidator'
 import { DateTime } from 'luxon'
@@ -49,6 +50,13 @@ export default class UsersController {
     } catch (error) {
       await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error creating user' })
+    }
+
+    try {
+      await sendEmail(newUser, 'email/welcome', 'Welcome to Bets System!')
+    } catch (error) {
+      await transaction.rollback()
+      return response.badRequest({ statusCode: 400, message: 'Error sending welcome email' })
     }
 
     await transaction.commit()

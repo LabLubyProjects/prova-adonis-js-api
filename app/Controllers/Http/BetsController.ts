@@ -3,6 +3,8 @@ import Bet from 'App/Models/Bet'
 import Game from 'App/Models/Game'
 import Cart from 'App/Models/Cart'
 import StoreValidator from 'App/Validators/Bet/StoreValidator'
+import Database from '@ioc:Adonis/Lucid/Database'
+import { sendEmail } from 'App/Services/sendEmail'
 
 export default class BetsController {
   public async index({ request, response }: HttpContextContract) {
@@ -60,12 +62,25 @@ export default class BetsController {
         message: 'Total value of bets is lower than cart minimum value',
       })
 
+    const transaction = await Database.beginGlobalTransaction()
+
     try {
       await Bet.createMany(bets)
-      return response.created({ message: 'Bets saved successfully' })
     } catch (error) {
+      await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error while processing bets' })
     }
+
+    try {
+      await sendEmail(auth.user!, 'email/new_bet', 'Congratulations for your new bet!')
+    } catch (error) {
+      await transaction.rollback()
+      return response.badRequest({ statusCode: 400, message: 'Error sending new bets email' })
+    }
+
+    await transaction.commit()
+
+    return response.created({ message: 'Bets saved successfully' })
   }
 
   public async show({ response, params }: HttpContextContract) {

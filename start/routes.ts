@@ -23,6 +23,7 @@ Route.group(() => {
 // Public routes
 Route.group(() => {
   Route.post('login', 'AuthController.login')
+  Route.post('recover', 'AuthController.recover')
   Route.post('users', 'UsersController.store')
 }).prefix('api/v1')
 
