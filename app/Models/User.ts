@@ -23,9 +23,6 @@ export default class User extends compose(BaseModel, Filterable) {
   @column({ isPrimary: true })
   public id: string
 
-  @column({ serializeAs: null })
-  public rememberMeToken?: string
-
   @column()
   public name: string
 
