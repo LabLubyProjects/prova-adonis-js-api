@@ -80,10 +80,20 @@ export default class UsersController {
     return response.ok(user)
   }
 
-  public async update({ request, response, params }: HttpContextContract) {
+  public async update({ request, response, params, auth }: HttpContextContract) {
     await request.validate(UpdateValidator)
 
     const userId = params.id
+    const loggedUserRoles = await User.query().where('id', auth.user!.id).preload('roles')
+    if (
+      userId !== auth.user?.id &&
+      loggedUserRoles.filter((role) => role.name === 'admin').length === 0
+    )
+      return response.forbidden({
+        statusCode: 403,
+        message: 'You are not allowed to update this user',
+      })
+
     const userBody = request.only(['name', 'cpf', 'email', 'password'])
 
     let updatedUser
@@ -105,7 +115,7 @@ export default class UsersController {
 
     await transaction.commit()
 
-    return response.created(updatedUser)
+    return response.ok(updatedUser)
   }
 
   public async destroy({ response, params }: HttpContextContract) {

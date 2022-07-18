@@ -58,12 +58,7 @@ export default class User extends compose(BaseModel, Filterable) {
   }
 
   @beforeSave()
-  public static async hashPasswordAndSanitizeCPF(user: User) {
+  public static async hashPassword(user: User) {
     if (user.$dirty.password) user.password = await Hash.make(user.password)
-    if (user.$dirty.cpf) user.cpf = this.sanitizeCPF(user.cpf)
-  }
-
-  private static sanitizeCPF(cpf: string): string {
-    return cpf.replace(/\.|\s|\-/g, '')
   }
 }

@@ -23,6 +23,7 @@ export default class ExceptionHandler extends HttpExceptionHandler {
   }
 
   public async handle(error: any, ctx: HttpContextContract) {
+    console.log(error)
     if (error.code === 'E_UNAUTHORIZED_ACCESS')
       return ctx.response.unauthorized({ statusCode: 401, message: 'Invalid credentials' })
     if (error.code === 'E_VALIDATION_FAILURE') return ctx.response.status(422).send(error.messages)

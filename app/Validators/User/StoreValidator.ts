@@ -11,7 +11,7 @@ export default class StoreValidator extends MessagesCustom {
     name: schema.string({ trim: true }, [
       rules.maxLength(50),
       rules.minLength(3),
-      rules.regex(/^[a-zA-ZÀ-ÿ\u00f1\u00d1]*$/g),
+      rules.regex(/^[a-zA-ZÀ-ÿ\s\u00f1\u00d1]*$/g),
     ]),
     cpf: schema.string({}, [
       rules.regex(/^\d{3}.\d{3}.\d{3}-\d{2}$/),

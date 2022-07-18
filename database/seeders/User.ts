@@ -27,7 +27,6 @@ export default class extends BaseSeeder {
       email: 'player@player.com',
       password: 'player123',
     })
-    console.log(rolePlayer?.id, roleAdmin?.id)
     if (rolePlayer) await userPlayer.related('roles').attach([rolePlayer.id])
   }
 }
