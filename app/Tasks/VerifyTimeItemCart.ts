@@ -24,19 +24,24 @@ export default class VerifyTimeItemCart extends BaseTask {
 
       await Promise.all(
         usersWithBets.map(async (userWithBet) => {
-          userWithBet.bets.sort((a, b) => a.createdAt.toUnixInteger() - b.createdAt.toUnixInteger())
+          if (userWithBet.bets.length === 0) {
+            await sendEmail(userWithBet, 'email/new_bet_reminder_for_new_users', 'Start betting!')
+            return Logger.info('Reminder email sent successfully')
+          }
+          userWithBet.bets.sort((a, b) => b.createdAt.toUnixInteger() - a.createdAt.toUnixInteger())
+
           const { createdAt } = userWithBet.bets[0]
 
-          const nowPlusOneWeek = dayjs(createdAt.toJSDate()).add(7, 'd').format()
+          const lastBetPlusOneWeek = dayjs(createdAt.toJSDate()).add(7, 'd').format()
           const currentDate = dayjs().format()
-
-          if (nowPlusOneWeek < currentDate) {
-            await sendEmail(userWithBet, 'new_bet_reminder', 'We miss you')
+          if (lastBetPlusOneWeek < currentDate) {
+            await sendEmail(userWithBet, 'email/new_bet_reminder_by_week', 'We miss you!')
             return Logger.info('Reminder email sent successfully')
           }
         })
       )
     } catch (error) {
+      console.log(error)
       return Logger.error('Error sending reminder email')
     }
   }

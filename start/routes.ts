@@ -24,10 +24,15 @@ Route.group(() => {
 
   // Public routes
   Route.group(() => {
-    Route.post('login', 'AuthController.login')
-    Route.post('recover', 'AuthController.recover')
     Route.post('users', 'UsersController.store')
   })
+
+  // Authentication routes
+  Route.group(() => {
+    Route.post('login', 'AuthController.login')
+    Route.post('forgot_password', 'AuthController.forgot_password')
+    Route.post('reset_password', 'AuthController.reset_password')
+  }).prefix('auth')
 
   // Player routes
   Route.group(() => {

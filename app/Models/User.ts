@@ -38,6 +38,12 @@ export default class User extends compose(BaseModel, Filterable) {
   @column({ serializeAs: null })
   public password: string
 
+  @column({ serializeAs: null })
+  public passwordRecoverToken?: string
+
+  @column({ serializeAs: null })
+  public passwordRecoverTokenDuration?: DateTime
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
