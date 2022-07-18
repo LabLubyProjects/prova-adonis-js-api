@@ -25,7 +25,6 @@ export default class UsersController {
       const users = await userQuery
       return response.ok(users)
     } catch (error) {
-      console.log(error)
       return response.badRequest({ statusCode: 400, message: 'Error fetching users' })
     }
   }

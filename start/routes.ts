@@ -40,6 +40,7 @@ Route.group(() => {
 Route.group(() => {
   Route.resource('users', 'UsersController').only(['index', 'destroy'])
   Route.resource('games', 'GamesController').except(['index', 'show'])
+  Route.resource('carts', 'CartsController')
 })
   .prefix('api/v1')
   .middleware(['auth', 'is:admin'])
