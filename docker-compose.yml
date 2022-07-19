@@ -27,6 +27,7 @@ services:
     restart: on-failure
     entrypoint: [ "./wait-for.sh", "database:3306", "--", "yarn", "start" ]
     environment:
+     - HOST=app
      - PORT=3333
      - NODE_ENV=development
      - APP_KEY=Tzb3-6N_U4CO6YssT9D-WE_FAz4ep7BN
