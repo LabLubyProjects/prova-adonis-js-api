@@ -11,8 +11,23 @@ import { DateTime } from 'luxon'
 export default class UsersController {
   public async index({ response, request }: HttpContextContract) {
     const { page, perPage, ...inputs } = request.qs()
+
     try {
-      const userQuery = User.query()
+      if (page || perPage) {
+        const users = await User.query()
+          .preload('roles', (role) => role.select('name', 'description'))
+          .preload('bets', (bet) =>
+            bet
+              .select('game_id', 'numbers')
+              .where('created_at', '>=', DateTime.local().minus({ month: 1 }).toString())
+          )
+          .filter(inputs)
+          .paginate(page || 1, perPage || 10)
+
+        return response.ok(users)
+      }
+
+      const users = await User.query()
         .preload('roles', (role) => role.select('name', 'description'))
         .preload('bets', (bet) =>
           bet
@@ -21,9 +36,6 @@ export default class UsersController {
         )
         .filter(inputs)
 
-      if (page || perPage) await userQuery.paginate(page || 1, perPage || 10)
-
-      const users = await userQuery
       return response.ok(users)
     } catch (error) {
       return response.badRequest({ statusCode: 400, message: 'Error fetching users' })

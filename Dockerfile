@@ -1,12 +1,12 @@
-FROM node:18-alpine
+FROM node:lts
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
-
-RUN yarn && yarn rebuild
-
 COPY . .
+
+RUN yarn
+
+RUN node ace invoke @adonisjs/core
 
 EXPOSE 3333
 

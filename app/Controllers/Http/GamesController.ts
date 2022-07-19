@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
 import Game from 'App/Models/Game'
 import StoreValidator from 'App/Validators/Game/StoreValidator'
 import UpdateValidator from 'App/Validators/Game/UpdateValidator'
@@ -7,10 +8,18 @@ export default class GamesController {
   public async index({ request, response }: HttpContextContract) {
     const { page, perPage, ...inputs } = request.qs()
     try {
-      const gamesQuery = Game.query().filter(inputs)
-      if (page || perPage) await gamesQuery.paginate(page || 1, perPage || 10)
-      const games = await gamesQuery
-      return response.ok(games)
+      const cart = await Database.from('cart').first()
+      if (page || perPage) {
+        const games = await Game.query()
+          .filter(inputs)
+          .paginate(page || 1, perPage || 10)
+        const { meta, data } = games.serialize()
+        return response.ok({ min_cart_value: cart.min_cart_value, meta, types: data })
+      }
+
+      const games = await Game.query().filter(inputs)
+
+      return response.ok({ min_cart_value: cart.min_cart_value, types: games })
     } catch (error) {
       return response.badRequest({ statusCode: 400, message: 'Error fetching games' })
     }
