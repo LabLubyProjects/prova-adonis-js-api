@@ -10,8 +10,6 @@ export default class extends BaseSchema {
   }
 
   public async down() {
-    this.schema.alterTable(this.tableName, (table) => {
-      table.string('cpf', 11).alter()
-    })
+    this.schema.alterTable(this.tableName, (table) => {})
   }
 }
