@@ -49,16 +49,18 @@ export default class UsersController {
 
     let newUser
 
-    const transaction = await Database.beginGlobalTransaction()
+    const transaction = await Database.transaction()
 
     try {
-      newUser = await User.create(userBody)
+      newUser = new User()
+      newUser.useTransaction(transaction)
+      newUser.name = userBody.name
+      newUser.cpf = userBody.cpf
+      newUser.password = userBody.password
+      newUser.email = userBody.email
+      await newUser.save()
       const playerRole = await Role.findBy('name', 'player')
       if (playerRole) await newUser.related('roles').attach([playerRole.id], transaction)
-      newUser = await User.query()
-        .where('id', newUser.id)
-        .preload('roles', (role) => role.select('name', 'description'))
-        .first()
     } catch (error) {
       await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error creating user' })
@@ -70,10 +72,19 @@ export default class UsersController {
       await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error sending welcome email' })
     }
-
     await transaction.commit()
 
-    return response.created(newUser)
+    let userFind
+    try {
+      userFind = await User.query()
+        .where('id', newUser.id)
+        .preload('roles', (role) => role.select('name', 'description'))
+        .first()
+    } catch (error) {
+      return response.notFound({ statusCode: 404, message: 'Error finding user' })
+    }
+
+    return response.created(userFind)
   }
 
   public async show({ response, params }: HttpContextContract) {
@@ -110,7 +121,7 @@ export default class UsersController {
 
     let updatedUser
 
-    const transaction = await Database.beginGlobalTransaction()
+    const transaction = await Database.transaction()
 
     try {
       updatedUser = await User.find(userId)
@@ -124,10 +135,18 @@ export default class UsersController {
       await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error updating user' })
     }
-
     await transaction.commit()
+    let userFind
+    try {
+      userFind = await User.query()
+        .where('id', updatedUser.id)
+        .preload('roles', (role) => role.select('name', 'description'))
+        .first()
+    } catch (error) {
+      return response.notFound({ statusCode: 404, message: 'Error finding user' })
+    }
 
-    return response.ok(updatedUser)
+    return response.ok(userFind)
   }
 
   public async destroy({ response, params }: HttpContextContract) {

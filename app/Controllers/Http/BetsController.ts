@@ -50,7 +50,6 @@ export default class BetsController {
         })
 
       totalCartValue += currentGameAnalized!.price
-      bet.userId = userId!
     }
 
     const cart = await Cart.query().first()
@@ -62,10 +61,15 @@ export default class BetsController {
         message: 'Total value of bets is lower than cart minimum value',
       })
 
-    const transaction = await Database.beginGlobalTransaction()
+    const transaction = await Database.transaction()
 
     try {
-      await Bet.createMany(bets)
+      Array.prototype.forEach.call(bets, async (bet) => {
+        let newBet = new Bet()
+        newBet.useTransaction(transaction)
+        ;(newBet.gameId = bet.gameId), (newBet.numbers = bet.numbers), (newBet.userId = userId!)
+        await newBet.save()
+      })
     } catch (error) {
       await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error while processing bets' })

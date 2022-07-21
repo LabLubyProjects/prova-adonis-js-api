@@ -1,5 +1,5 @@
 import Mail from '@ioc:Adonis/Addons/Mail'
-// import Database from '@ioc:Adonis/Lucid/Database'
+import Database from '@ioc:Adonis/Lucid/Database'
 import { test } from '@japa/runner'
 import Game from 'App/Models/Game'
 import User from 'App/Models/User'
@@ -25,10 +25,10 @@ test.group('Bets.store', (betsStore) => {
     games = await Game.all()
   })
 
-  // betsStore.each.setup(async () => {
-  //   await Database.beginGlobalTransaction()
-  //   return async () => await Database.rollbackGlobalTransaction()
-  // })
+  betsStore.each.setup(async () => {
+    await Database.beginGlobalTransaction()
+    return async () => await Database.rollbackGlobalTransaction()
+  })
 
   test('Show return 401 code because user is not logged in', async ({ client, route }) => {
     const response = await client.post(route('BetsController.store'))
