@@ -43,7 +43,6 @@ export default class AuthController {
       await sendEmail(user, 'email/recover', 'Password Recovery Token')
       return response.ok({ message: 'Password recovery token email sent successfully!' })
     } catch (error) {
-      console.log(error)
       return response.badRequest({ statusCode: 400, message: 'Error sending token recovery email' })
     }
   }
