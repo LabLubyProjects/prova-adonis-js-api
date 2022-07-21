@@ -45,7 +45,7 @@ export default class GamesController {
       return response.badRequest({ statusCode: 400, message: 'Error creating game' })
     }
 
-    return response.ok(newGame)
+    return response.created(newGame)
   }
 
   public async show({ response, params }: HttpContextContract) {

@@ -11,7 +11,7 @@ export default class StoreValidator extends MessagesCustom {
     type: schema.string({ trim: true }, [
       rules.maxLength(50),
       rules.minLength(3),
-      rules.regex(/^[a-zA-ZÀ-ÿ\u00f1\u00d1-]*$/g),
+      rules.regex(/^[a-zA-ZÀ-ÿ\s\u00f1\u00d1-]*$/g),
       rules.unique({ table: 'games', column: 'type', caseInsensitive: true }),
     ]),
     description: schema.string({ trim: true }, [rules.maxLength(255), rules.minLength(10)]),

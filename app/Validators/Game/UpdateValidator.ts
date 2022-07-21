@@ -15,7 +15,7 @@ export default class UpdateValidator extends MessagesCustom {
     type: schema.string.optional({ trim: true }, [
       rules.maxLength(50),
       rules.minLength(3),
-      rules.regex(/^[a-zA-ZÀ-ÿ\u00f1\u00d1-]*$/g),
+      rules.regex(/^[a-zA-ZÀ-ÿ\s\u00f1\u00d1-]*$/g),
       rules.unique({
         table: 'games',
         column: 'type',
