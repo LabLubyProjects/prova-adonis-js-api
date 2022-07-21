@@ -5,7 +5,7 @@ import User from 'App/Models/User'
 import * as crypto from 'crypto'
 import { DateTime } from 'luxon'
 
-test.group('Authentication', async (auth) => {
+test.group('Authentication', (auth) => {
   auth.each.setup(async () => {
     await Database.beginGlobalTransaction()
     return async () => await Database.rollbackGlobalTransaction()

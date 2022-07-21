@@ -2,7 +2,7 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import { test } from '@japa/runner'
 import User from 'App/Models/User'
 
-test.group('Games.store', async (gamesStore) => {
+test.group('Games.store', (gamesStore) => {
   let admin
   let player
   gamesStore.setup(async () => {
@@ -15,6 +15,15 @@ test.group('Games.store', async (gamesStore) => {
     return async () => await Database.rollbackGlobalTransaction()
   })
 
+  test('Show return 401 code because user is not logged in', async ({ client, route }) => {
+    const response = await client.post(route('GamesController.store'))
+    response.assertStatus(401)
+    response.assertBodyContains({
+      statusCode: 401,
+      message: 'Invalid credentials',
+    })
+  })
+
   test('Should return 422 code due to type length being shorter than 3 characters', async ({
     client,
     route,
@@ -24,7 +33,7 @@ test.group('Games.store', async (gamesStore) => {
       .json({
         type: 'Jo',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -48,7 +57,7 @@ test.group('Games.store', async (gamesStore) => {
       .json({
         type: 'Johnohnohnohnohnohnohnohnohnohnohnohnohnohnohnohnoh',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -72,7 +81,7 @@ test.group('Games.store', async (gamesStore) => {
       .json({
         type: '_a-sajsid.',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -92,7 +101,7 @@ test.group('Games.store', async (gamesStore) => {
       .json({
         type: 'Quina',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -116,7 +125,7 @@ test.group('Games.store', async (gamesStore) => {
         type: 'Some type',
         description: 'short',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -142,7 +151,7 @@ test.group('Games.store', async (gamesStore) => {
         description:
           'descriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondes',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -165,7 +174,7 @@ test.group('Games.store', async (gamesStore) => {
         description: 'Some description',
         range: -1,
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -188,7 +197,7 @@ test.group('Games.store', async (gamesStore) => {
         range: 10,
         price: -1,
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -215,7 +224,7 @@ test.group('Games.store', async (gamesStore) => {
         price: 5,
         minAndMaxNumber: -1,
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -242,7 +251,7 @@ test.group('Games.store', async (gamesStore) => {
         price: 5,
         minAndMaxNumber: 10,
       })
-      .loginAs(player!)
+      .loginAs(player)
 
     response.assertStatus(403)
     response.assertBodyContains({
@@ -262,7 +271,7 @@ test.group('Games.store', async (gamesStore) => {
         minAndMaxNumber: 10,
         color: 'green',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
     response.assertStatus(201)
   })
 })

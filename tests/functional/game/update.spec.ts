@@ -3,7 +3,7 @@ import { test } from '@japa/runner'
 import Game from 'App/Models/Game'
 import User from 'App/Models/User'
 
-test.group('Games.update', async (gamesUpdate) => {
+test.group('Games.update', (gamesUpdate) => {
   let admin
   let player
   let game
@@ -18,6 +18,15 @@ test.group('Games.update', async (gamesUpdate) => {
     return async () => await Database.rollbackGlobalTransaction()
   })
 
+  test('Show return 401 code because user is not logged in', async ({ client, route }) => {
+    const response = await client.put(route('GamesController.update', { id: game.id }))
+    response.assertStatus(401)
+    response.assertBodyContains({
+      statusCode: 401,
+      message: 'Invalid credentials',
+    })
+  })
+
   test('Should return 422 code due to type length being shorter than 3 characters', async ({
     client,
     route,
@@ -27,7 +36,7 @@ test.group('Games.update', async (gamesUpdate) => {
       .json({
         type: 'Jo',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -51,7 +60,7 @@ test.group('Games.update', async (gamesUpdate) => {
       .json({
         type: 'Johnohnohnohnohnohnohnohnohnohnohnohnohnohnohnohnoh',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -75,7 +84,7 @@ test.group('Games.update', async (gamesUpdate) => {
       .json({
         type: '_a-sajsid.',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -89,24 +98,17 @@ test.group('Games.update', async (gamesUpdate) => {
     })
   })
 
-  test('Should return 422 code due to repeated type', async ({ client, route }) => {
+  test('Should return 200 code and ignore repeated type because it is own type', async ({
+    client,
+    route,
+  }) => {
     const response = await client
       .put(route('GamesController.update', { id: game.id }))
       .json({
-        type: 'Quina',
+        type: game.type,
       })
-      .loginAs(admin!)
-
-    response.assertStatus(422)
-    response.assertBodyContains({
-      errors: [
-        {
-          rule: 'unique',
-          field: 'type',
-          message: 'type already exists',
-        },
-      ],
-    })
+      .loginAs(admin)
+    response.assertStatus(200)
   })
 
   test('Should return 422 code due to description length being shorter than 10 characters', async ({
@@ -118,7 +120,7 @@ test.group('Games.update', async (gamesUpdate) => {
       .json({
         description: 'short',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -143,7 +145,7 @@ test.group('Games.update', async (gamesUpdate) => {
         description:
           'descriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescriptiondes',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -164,7 +166,7 @@ test.group('Games.update', async (gamesUpdate) => {
       .json({
         range: -1,
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -184,7 +186,7 @@ test.group('Games.update', async (gamesUpdate) => {
       .json({
         price: -1,
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -207,7 +209,7 @@ test.group('Games.update', async (gamesUpdate) => {
       .json({
         minAndMaxNumber: -1,
       })
-      .loginAs(admin!)
+      .loginAs(admin)
 
     response.assertStatus(422)
     response.assertBodyContains({
@@ -234,7 +236,7 @@ test.group('Games.update', async (gamesUpdate) => {
         price: 5,
         minAndMaxNumber: 10,
       })
-      .loginAs(player!)
+      .loginAs(player)
 
     response.assertStatus(403)
     response.assertBodyContains({
@@ -254,7 +256,7 @@ test.group('Games.update', async (gamesUpdate) => {
         minAndMaxNumber: 10,
         color: 'green',
       })
-      .loginAs(admin!)
+      .loginAs(admin)
     response.assertStatus(200)
   })
 })
