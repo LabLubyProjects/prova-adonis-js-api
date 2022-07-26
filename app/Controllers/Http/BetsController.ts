@@ -4,7 +4,10 @@ import Game from 'App/Models/Game'
 import Cart from 'App/Models/Cart'
 import StoreValidator from 'App/Validators/Bet/StoreValidator'
 import Database from '@ioc:Adonis/Lucid/Database'
-import { sendEmail } from 'App/Services/sendEmail'
+import { produce } from 'App/Services/kafka'
+import User from 'App/Models/User'
+import Role from 'App/Models/Role'
+// import { sendEmail } from 'App/Services/sendEmail'
 
 export default class BetsController {
   public async index({ request, response }: HttpContextContract) {
@@ -76,7 +79,14 @@ export default class BetsController {
     }
 
     try {
-      await sendEmail(auth.user!, 'email/new_bet', 'Congratulations for your new bet!')
+      await produce(auth.user!, 'new-bet')
+      const allAdmins = await User.query().preload('roles')
+      allAdmins.forEach(async (admin) => {
+        const adminJSON = admin.serialize()
+        if (adminJSON.roles.some((role) => role.name === 'admin'))
+          await produce({ ...adminJSON, playerName: auth.user!.name }, 'new-bet-admin-report')
+      })
+      //await sendEmail(auth.user!, 'email/new_bet', 'Congratulations for your new bet!')
     } catch (error) {
       await transaction.rollback()
       return response.badRequest({ statusCode: 400, message: 'Error sending new bets email' })

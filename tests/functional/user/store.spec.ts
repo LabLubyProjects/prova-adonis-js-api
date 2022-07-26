@@ -1,4 +1,3 @@
-import Mail from '@ioc:Adonis/Addons/Mail'
 import Database from '@ioc:Adonis/Lucid/Database'
 import { test } from '@japa/runner'
 
@@ -189,8 +188,7 @@ test.group('Users.store', (usersStore) => {
       })
     })
 
-    test('Should create user and send an welcome email', async ({ client, route, assert }) => {
-      const mailer = Mail.fake()
+    test('Should create user and send an welcome email', async ({ client, route }) => {
       const response = await client.post(route('UsersController.store')).json({
         name: 'John Derek',
         cpf: '000.000.000-10',
@@ -198,8 +196,6 @@ test.group('Users.store', (usersStore) => {
         password: 'johnderek123',
       })
       response.assertStatus(201)
-      assert.isTrue(mailer.exists((email) => email.subject === 'Welcome to Bets System!'))
-      Mail.restore()
     })
   })
 })

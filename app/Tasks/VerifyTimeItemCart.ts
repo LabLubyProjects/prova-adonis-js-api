@@ -4,7 +4,8 @@ import dayjs from 'dayjs'
 import isLeapYear from 'dayjs/plugin/isLeapYear'
 import 'dayjs/locale/pt-br'
 import User from 'App/Models/User'
-import { sendEmail } from 'App/Services/sendEmail'
+import { produce } from 'App/Services/kafka'
+// import { sendEmail } from 'App/Services/sendEmail'
 
 export default class VerifyTimeItemCart extends BaseTask {
   public static get schedule() {
@@ -25,7 +26,8 @@ export default class VerifyTimeItemCart extends BaseTask {
       await Promise.all(
         usersWithBets.map(async (userWithBet) => {
           if (userWithBet.bets.length === 0) {
-            await sendEmail(userWithBet, 'email/new_bet_reminder_for_new_users', 'Start betting!')
+            await produce(userWithBet, 'new-bet-new-users')
+            //await sendEmail(userWithBet, 'email/new_bet_reminder_for_new_users', 'Start betting!')
             return Logger.info('Reminder email sent successfully')
           }
           userWithBet.bets.sort((a, b) => b.createdAt.toUnixInteger() - a.createdAt.toUnixInteger())
@@ -35,13 +37,13 @@ export default class VerifyTimeItemCart extends BaseTask {
           const lastBetPlusOneWeek = dayjs(createdAt.toJSDate()).add(7, 'd').format()
           const currentDate = dayjs().format()
           if (lastBetPlusOneWeek < currentDate) {
-            await sendEmail(userWithBet, 'email/new_bet_reminder_by_week', 'We miss you!')
+            await produce(userWithBet, 'new-bet-by-week')
+            // await sendEmail(userWithBet, 'email/new_bet_reminder_by_week', 'We miss you!')
             return Logger.info('Reminder email sent successfully')
           }
         })
       )
     } catch (error) {
-      console.log(error)
       return Logger.error('Error sending reminder email')
     }
   }

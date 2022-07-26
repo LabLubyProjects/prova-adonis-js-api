@@ -1,4 +1,3 @@
-import Mail from '@ioc:Adonis/Addons/Mail'
 import Database from '@ioc:Adonis/Lucid/Database'
 import { test } from '@japa/runner'
 import Game from 'App/Models/Game'
@@ -203,9 +202,7 @@ test.group('Bets.store', (betsStore) => {
     })
   })
 
-  test('Should return 201 code and send an email to player', async ({ client, route, assert }) => {
-    const mailer = Mail.fake()
-
+  test('Should return 201 code and send an email to player', async ({ client, route }) => {
     const bets: any[] = []
     for (const game of games) {
       for (let i = 0; i < 4; i++) {
@@ -218,7 +215,5 @@ test.group('Bets.store', (betsStore) => {
     }
     const response = await client.post(route('BetsController.store')).json({ bets }).loginAs(player)
     response.assertStatus(201)
-    assert.isTrue(mailer.exists((email) => email.subject === 'Congratulations for your new bet!'))
-    Mail.restore()
   })
 })

@@ -1,11 +1,12 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
 import Env from '@ioc:Adonis/Core/Env'
-import { sendEmail } from 'App/Services/sendEmail'
+// import { sendEmail } from 'App/Services/sendEmail'
 import ForgotPasswordValidator from 'App/Validators/User/ForgotPasswordValidator'
 import * as crypto from 'crypto'
 import { DateTime } from 'luxon'
 import ResetPasswordValidator from 'App/Validators/User/ResetPasswordValidator'
+import { produce } from 'App/Services/kafka'
 
 export default class AuthController {
   public async login({ auth, request, response }: HttpContextContract) {
@@ -40,7 +41,11 @@ export default class AuthController {
       user.passwordRecoverToken = token
       user.passwordRecoverTokenDuration = tokenExpiration
       await user.save()
-      await sendEmail(user, 'email/recover', 'Password Recovery Token')
+      await produce(
+        { ...user.serialize(), passwordRecoverToken: user.passwordRecoverToken },
+        'forgot-password'
+      )
+      //await sendEmail(user, 'email/recover', 'Password Recovery Token')
       return response.ok({ message: 'Password recovery token email sent successfully!' })
     } catch (error) {
       return response.badRequest({ statusCode: 400, message: 'Error sending token recovery email' })

@@ -1,4 +1,3 @@
-import Mail from '@ioc:Adonis/Addons/Mail'
 import Database from '@ioc:Adonis/Lucid/Database'
 import { test } from '@japa/runner'
 import User from 'App/Models/User'
@@ -100,17 +99,12 @@ test.group('Authentication', (auth) => {
   test('Should return 200 code on forgot password and send reset email to user', async ({
     client,
     route,
-    assert,
   }) => {
-    const mailer = Mail.fake()
-
     const response = await client.post(route('AuthController.forgot_password')).json({
       email: 'admin@admin.com',
     })
 
     response.assertStatus(200)
-    assert.isTrue(mailer.exists((email) => email.subject === 'Password Recovery Token'))
-    Mail.restore()
   })
 
   test('Should return 422 code on reset password due to email length being greater than 50 characters', async ({
